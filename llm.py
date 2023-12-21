@@ -1,4 +1,5 @@
 from gpt4all import GPT4All
+from langchain.chains.query_constructor.base import AttributeInfo
 
 available_models = [
     "all-MiniLM-L6-v2-f16.gguf",
@@ -10,6 +11,32 @@ available_models = [
 ]
 
 model = GPT4All(available_models[5], device="cpu", verbose=True)
+
+metadata_field_info = [
+    AttributeInfo(
+        name="id",
+        description="The identifier of the song",
+        type="string",
+    ),
+    AttributeInfo(
+        name="singers",
+        description="The singers of the song",
+        type="string or list of strings",
+    ),
+    AttributeInfo(
+        name="authors",
+        description="The authors of the song",
+        type="string",
+    ),
+    AttributeInfo(
+        name="title",
+        description="The title of the song",
+        type="string",
+    )
+]
+
+user_prompt = "Give me a song"
+
 prompt = """
 Your goal is to structure the user\'s query to match the request schema provided below.
 
@@ -114,71 +141,11 @@ Structured Request:
 << Example 3. >>
 Data Source:
 ```json
-{
-    "content": "The content of the research paper",
-    "attributes": {
-    "id": {
-        "description": "The identifier of the research paper",
-        "type": "string"
-    },
-    "submitter": {
-        "description": "The submitters of the research paper (don\'t use the operator EQ here)",
-        "type": "string or list of strings"
-    },
-    "authors": {
-        "description": "The authors of the research paper (don\'t use the operator EQ here)",
-        "type": "string"
-    },
-    "title": {
-        "description": "The title of the research paper",
-        "type": "string"
-    },
-    "comments": {
-        "description": "Comments related to the research paper (don\'t use the operator EQ here)",
-        "type": "string"
-    },
-    "journal-ref": {
-        "description": "Journal reference of the research paper (don\'t use the operator EQ here)",
-        "type": "string"
-    },
-    "doi": {
-        "description": "Digital Object Identifier of the research paper",
-        "type": "string"
-    },
-    "report-no": {
-        "description": "Report number of the research paper",
-        "type": "string"
-    },
-    "categories": {
-        "description": "Categories or topics related to the research paper",
-        "type": "string"
-    },
-    "license": {
-        "description": "License information for the research paper",
-        "type": "string"
-    },
-    "abstract": {
-        "description": "Abstract of the research paper",
-        "type": "string"
-    },
-    "versions": {
-        "description": "Versions and creation information of the research paper",
-        "type": "string (formatted as an array of objects)"
-    },
-    "update_date": {
-        "description": "Date when the research paper was last updated",
-        "type": "string (formatted as date)"
-    },
-    "authors_parsed": {
-        "description": "Parsed information about the authors",
-        "type": "string (formatted as an array of arrays)"
-    }
-}
-}
+{metadata_field_info}
 ```
 
 User Query:
-give me the id of the document with roi "10.1016/j.cpc.2007.05.015"
+{user_prompt}
 """
 with model.chat_session():
     response = model.generate(prompt=prompt, temp=0)
