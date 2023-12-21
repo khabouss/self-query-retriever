@@ -1,7 +1,6 @@
 from gpt4all import GPT4All
-from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.prompts import PromptTemplate
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Optional, Union
 import os
 
 
@@ -20,14 +19,6 @@ class SelfQueryRetriever:
         
     ):
         """
-        available_models = [
-            "all-MiniLM-L6-v2-f16.gguf",
-            "mpt-7b-chat-merges-q4_0.gguf",
-            "nous-hermes-llama2-13b.Q4_0.gguf",
-            "orca-mini-3b-gguf2-q4_0.gguf",
-            "replit-code-v1_5-3b-q4_0.gguf",
-            "gpt4all-falcon-q4_0.gguf",
-        ]
         """
 
         model = GPT4All(
@@ -41,6 +32,8 @@ class SelfQueryRetriever:
         )
 
         """
+        Example:
+        
         metadata_field_info = [
             AttributeInfo(
                 name="id",
@@ -66,17 +59,17 @@ class SelfQueryRetriever:
         """
 
         prompt = PromptTemplate.from_template(
-            """
+        """
         Your goal is to structure the user\'s query to match the request schema provided below.
 
         << Structured Request Schema >>
         When responding use a markdown code snippet with a JSON object formatted in the following schema:
 
         ```json
-        {
+        {{
             "query": text string to compare to document contents
             "filter": logical condition statement for filtering documents
-        }
+        }}
         ```
 
         The query string should contain only text that is expected to match the contents of documents. Any conditions in the filter should not be mentioned in the query as well.
@@ -102,23 +95,23 @@ class SelfQueryRetriever:
         << Example 1. >>
         Data Source:
         ```json
-        {
+        {{
             "content": "Lyrics of a song",
-            "attributes": {
-                "artist": {
+            "attributes": {{
+                "artist": {{
                     "type": "string",
                     "description": "Name of the song artist"
-                },
-                "length": {
+                }},
+                "length": {{
                     "type": "integer",
                     "description": "Length of the song in seconds"
-                },
-                "genre": {
+                }},
+                "genre": {{
                     "type": "string",
                     "description": "The song genre, one of "pop", "rock" or "rap""
-                }
-            }
-        }
+                }}
+            }}
+        }}
         ```
 
         User Query:
@@ -126,33 +119,33 @@ class SelfQueryRetriever:
 
         Structured Request:
         ```json
-        {
+        {{
             "query": "teenager love",
             "filter": "and(or(eq("artist", "Taylor Swift"), eq("artist", "Katy Perry")), lt("length", 180), eq("genre", "pop"))"
-        }
+        }}
         ```
 
 
         << Example 2. >>
         Data Source:
         ```json
-        {
+        {{
             "content": "Lyrics of a song",
-            "attributes": {
-                "artist": {
+            "attributes": {{
+                "artist": {{
                     "type": "string",
                     "description": "Name of the song artist"
-                },
-                "length": {
+                }},
+                "length": {{
                     "type": "integer",
                     "description": "Length of the song in seconds"
-                },
-                "genre": {
+                }},
+                "genre": {{
                     "type": "string",
                     "description": "The song genre, one of "pop", "rock" or "rap""
-                }
-            }
-        }
+                }}
+            }}
+        }}
         ```
 
         User Query:
@@ -160,10 +153,10 @@ class SelfQueryRetriever:
 
         Structured Request:
         ```json
-        {
+        {{
             "query": "",
             "filter": "NO_FILTER"
-        }
+        }}
         ```
 
 
